@@ -25,22 +25,38 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class quickftp extends Application {
-    FTPClient ftpClient = new FTPClient();
+public class QuickFTP extends Application {
+
     File file;
     TextField textHost, textUser, textPass;
     TextArea textAreaLog = new TextArea();
+    SqlManager sqlManager = new SqlManager();
+    FtpManager ftpManager = new FtpManager();
+
 
     public static void main(String[] args) {
-        launch(args);
+             launch(args);
     }
 
+
     @Override
-
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("quickftp");
 
-        //inputfields
+        //connect to sqlite db to get previously used host+usr
+         sqlManager.connectSQL();
+
+          //clear up on exiting
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    sqlManager.disconnectSQL();
+                    ftpManager.disconnectFTP();
+                    ; }
+            });
+
+
+
+        //start building the gui
+        primaryStage.setTitle("quickftp");
 
         textHost = new TextField();
         textHost.setPromptText("Host");
@@ -56,28 +72,30 @@ public class quickftp extends Application {
         //button to connect with a server
         Button buttonConnect = new Button();
         buttonConnect.setText("Connect");
+
         buttonConnect.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
 
-                if (ftpClient.isConnected()) {
+                if (ftpManager.ftpClient.isConnected()) {
                     //ftpclient is already connected, so we want to disconnect
-                    disconnectFTP();
+                    ftpManager.disconnectFTP();
                     buttonConnect.setText("Connect");
 
                 } else {
                     //ftpclient is not connected, so we want to connect
 
-                    connectFTP();
+                    ftpManager.connectFTP(textHost.getText(), textUser.getText(), textPass.getText());
                     //check if really connected
 
-                    if (ftpClient.isConnected()) {
+                    if (ftpManager.ftpClient.isConnected()) {
                         buttonConnect.setText("Disconnect");
                     }
                 }
             }
         });
+
 
         //button for uploading
         Button buttonUpload = new Button();
@@ -94,9 +112,9 @@ public class quickftp extends Application {
                     InputStream inputStream = new FileInputStream(file);
 
 
-                    boolean done = ftpClient.storeFile(file.getName(), inputStream);
+                    boolean done = ftpManager.ftpClient.storeFile(file.getName(), inputStream);
 
-                    System.out.println(ftpClient.getReplyCode());
+                    System.out.println(ftpManager.ftpClient.getReplyCode());
 
                     inputStream.close();
 
@@ -148,6 +166,8 @@ public class quickftp extends Application {
             }
         });
 
+
+        //button for copying the upload url to clipboard
         Button buttonCopy = new Button();
         buttonCopy.setText("Copy URL to clipboard");
         buttonCopy.setOnAction(new EventHandler<ActionEvent>() {
@@ -162,7 +182,7 @@ public class quickftp extends Application {
             }
         });
 
-        //setup gui
+        //create layout
         VBox vbox = new VBox();
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(10);
@@ -181,55 +201,10 @@ public class quickftp extends Application {
 
         vbox.getChildren().addAll(hb, hb2, hb3);
 
-
         primaryStage.setScene(new Scene(vbox));
         primaryStage.sizeToScene();
         primaryStage.show();
 
         buttonConnect.requestFocus();
-    }
-
-    //method to connect with ftpserver
-    public void connectFTP() {
-        String server = textHost.getText();
-        int port = 21;
-        String user = textUser.getText();
-        String pass = textPass.getText();
-
-
-        try {
-
-            ftpClient.connect(server, port);
-            textAreaLog.appendText(ftpClient.getReplyString());
-
-            ftpClient.login(user, pass);
-            textAreaLog.appendText(ftpClient.getReplyString());
-
-            ftpClient.enterLocalPassiveMode();
-            textAreaLog.appendText(ftpClient.getReplyString());
-
-            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-            textAreaLog.appendText(ftpClient.getReplyString());
-
-        } catch (IOException ex) {
-            System.out.println("Error: " + ex.getMessage());
-
-        }
-    }
-
-    //method to disconnect from ftpserver
-    public void disconnectFTP() {
-
-        try {
-            ftpClient.logout();
-            textAreaLog.appendText(ftpClient.getReplyString());
-
-            ftpClient.disconnect();
-
-
-        } catch (IOException ex) {
-            System.out.println("Error: " + ex.getMessage());
-            ex.printStackTrace();
-        }
     }
 }
