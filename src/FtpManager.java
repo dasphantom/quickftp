@@ -7,29 +7,32 @@ public class FtpManager {
     FTPClient ftpClient = new FTPClient();
 
     //method to connect with ftpserver
-    public void connectFTP(String server, String user, String pass) {
+    public String[] connectFTP(String server, String user, String pass) {
 
-
+        String [] replies = new String [4];
         int port = 21;
 
         try {
 
+            //connect and use replystrings to inform the user
+
             ftpClient.connect(server, port);
-            //textAreaLog.appendText(ftpClient.getReplyString());
+            replies [0] = ftpClient.getReplyString();
 
             ftpClient.login(user, pass);
-            //textAreaLog.appendText(ftpClient.getReplyString());
+            replies [1] = ftpClient.getReplyString();
 
             ftpClient.enterLocalPassiveMode();
-            //textAreaLog.appendText(ftpClient.getReplyString());
+            replies [2] = ftpClient.getReplyString();
 
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-            //textAreaLog.appendText(ftpClient.getReplyString());
+            replies [3] = ftpClient.getReplyString();
 
         } catch (IOException ex) {
             System.out.println("Error: " + ex.getMessage());
 
         }
+        return replies;
     }
 
     //method to disconnect from ftpserver
@@ -37,7 +40,6 @@ public class FtpManager {
 
         try {
             ftpClient.logout();
-            //textAreaLog.appendText(ftpClient.getReplyString());
             ftpClient.disconnect();
 
 

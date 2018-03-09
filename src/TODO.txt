@@ -1,3 +1,4 @@
 1. drag and drop files to upload
-2. remember login credentials
-3. change working directory
+2. remember multiple login credentials
+3. change working directory 
+4. upload multiple files at once

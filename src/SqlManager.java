@@ -6,6 +6,8 @@ public class SqlManager {
 
     public void connectSQL() {
 
+        //method to connect to sqlite server
+
         String url = "jdbc:sqlite:quickftp.db";
 
 
@@ -24,6 +26,9 @@ public class SqlManager {
     }
 
     public void disconnectSQL(){
+
+        //method to disconnect sqlite server
+
         try {
             conn.close();
 
@@ -35,11 +40,9 @@ public class SqlManager {
         }
     }
 
-
-
     public  void createSQL() {
 
-        // SQL statement for creating a new table
+        // SQL statement for creating a new table if not already made
         String sql = "CREATE TABLE IF NOT EXISTS login (\n"
                 + "	id integer PRIMARY KEY,\n"
                 + "	host text, \n"
@@ -48,7 +51,7 @@ public class SqlManager {
 
         try {
                 Statement stmt = conn.createStatement();
-                // create a new table
+
                 stmt.execute(sql);
             }
             catch(SQLException e)
@@ -60,6 +63,8 @@ public class SqlManager {
 
     public void insertSQL (String host, String user)
     {
+        //method to store the login in the db
+
         String sql = "INSERT INTO login(host,user) VALUES(?,?)";
 
         try {
@@ -71,25 +76,22 @@ public class SqlManager {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-
-
     }
 
     public String[] fetchSQL ()
     {
+        //method to load previously stored login
+
         String sql = "SELECT host, user FROM login";
         Statement stmt = null;
         ResultSet rs = null;
         String [] Result = new String [2];
 
         try {
-
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
             Result [0] = rs.getString("host");
             Result [1] = rs.getString("user");
-
-
             }
 
             catch (SQLException e)
@@ -97,7 +99,6 @@ public class SqlManager {
                 System.out.println(e.getMessage());
             }
         return Result;
+
     }
-
-
 }
