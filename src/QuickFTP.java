@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.ResultSet;
 
 public class QuickFTP extends Application {
 
@@ -43,17 +44,17 @@ public class QuickFTP extends Application {
     public void start(Stage primaryStage) {
 
         //connect to sqlite db to get previously used host+usr
-         sqlManager.connectSQL();
+        sqlManager.connectSQL();
+        sqlManager.createSQL();
 
-          //clear up on exiting
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    sqlManager.disconnectSQL();
-                    ftpManager.disconnectFTP();
-                    ; }
-            });
+        //clear up on exiting
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
 
-
+                ftpManager.disconnectFTP();
+                sqlManager.disconnectSQL();
+                ; }
+        });
 
         //start building the gui
         primaryStage.setTitle("quickftp");
@@ -69,6 +70,22 @@ public class QuickFTP extends Application {
 
         Hyperlink linkPath = new Hyperlink();
 
+        //button to load previously used login
+        Button buttonLoad = new Button();
+        buttonLoad.setText("Load login");
+
+        buttonLoad.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+            String [] Result = sqlManager.fetchSQL();
+
+            textHost.setText(Result[0]);
+            textUser.setText(Result[1]);
+
+
+            }
+        });
+
         //button to connect with a server
         Button buttonConnect = new Button();
         buttonConnect.setText("Connect");
@@ -77,6 +94,12 @@ public class QuickFTP extends Application {
 
             @Override
             public void handle(ActionEvent event) {
+
+                // check if required fields are not blank
+                if (textHost.getText().equals("") || textUser.getText().equals("") || textPass.getText().equals("")) {
+                    textAreaLog.appendText("Host / Username / Password is missing.\n");
+                    return;
+                }
 
                 if (ftpManager.ftpClient.isConnected()) {
                     //ftpclient is already connected, so we want to disconnect
@@ -87,11 +110,17 @@ public class QuickFTP extends Application {
                     //ftpclient is not connected, so we want to connect
 
                     ftpManager.connectFTP(textHost.getText(), textUser.getText(), textPass.getText());
+
+                    //add host+usr to sql db
+
+                    sqlManager.insertSQL(textHost.getText(), textUser.getText());
+
                     //check if really connected
 
                     if (ftpManager.ftpClient.isConnected()) {
                         buttonConnect.setText("Disconnect");
                     }
+
                 }
             }
         });
@@ -166,7 +195,6 @@ public class QuickFTP extends Application {
             }
         });
 
-
         //button for copying the upload url to clipboard
         Button buttonCopy = new Button();
         buttonCopy.setText("Copy URL to clipboard");
@@ -188,7 +216,7 @@ public class QuickFTP extends Application {
         vbox.setSpacing(10);
 
         HBox hb = new HBox();
-        hb.getChildren().addAll(textHost, textUser, textPass, buttonConnect);
+        hb.getChildren().addAll(textHost, textUser, textPass, buttonConnect, buttonLoad);
         hb.setSpacing(10);
 
         HBox hb2 = new HBox();
@@ -206,5 +234,6 @@ public class QuickFTP extends Application {
         primaryStage.show();
 
         buttonConnect.requestFocus();
+
     }
 }

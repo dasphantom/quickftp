@@ -43,7 +43,7 @@ public class FtpManager {
 
         } catch (IOException ex) {
             System.out.println("Error: " + ex.getMessage());
-            ex.printStackTrace();
+
         }
     }
 }
