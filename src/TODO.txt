@@ -3,4 +3,4 @@
 3. change working directory 
 4. upload multiple files at once
 5. gradle buildscript
-
+6. improved errorhandling
