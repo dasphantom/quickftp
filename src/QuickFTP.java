@@ -2,6 +2,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+//main class to start the app
+
 public class QuickFTP extends Application {
 
     SqlManager sqlManager = new SqlManager();
@@ -22,10 +24,11 @@ public class QuickFTP extends Application {
         //clear up on exiting
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-
                 ftpManager.disconnectFTP();
                 sqlManager.disconnectSQL();
-                ; }
+
+
+                ;}
         });
 
         //create the javafx scene and create the GUI
@@ -37,6 +40,7 @@ public class QuickFTP extends Application {
         primaryStage.show();
 
         gui.buttonConnect.requestFocus();
+
 
     }
 }

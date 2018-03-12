@@ -89,13 +89,12 @@ public class GuiBuilder {
                     String [] replies = ftpManager.connectFTP(textHost.getText(), textUser.getText(), textPass.getText());
                     for (String reply : replies)
                         textAreaLog.appendText(reply);
+                    //shows server replycodes
 
                     //add host+usr to sql db
-
                     sqlManager.insertSQL(textHost.getText(), textUser.getText());
 
                     //check if really connected
-
                     if (ftpManager.ftpClient.isConnected()) {
                         buttonConnect.setText("Disconnect");
                     }
@@ -103,7 +102,6 @@ public class GuiBuilder {
                 }
             }
         });
-
 
         //button for uploading
         buttonUpload = new Button();

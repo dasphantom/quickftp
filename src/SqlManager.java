@@ -1,5 +1,7 @@
 import java.sql.*;
 
+//this class provides the sqlmanager object used to manage connections to sqlite
+
 public class SqlManager {
 
     Connection conn = null;
@@ -7,20 +9,16 @@ public class SqlManager {
     public void connectSQL() {
 
         //method to connect to sqlite server
-
         String url = "jdbc:sqlite:quickftp.db";
-
 
         try {
 
             // create a connection to the database
             conn = DriverManager.getConnection(url);
-
             System.out.println("Connection to SQLite has been established.");
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-
         }
 
     }
@@ -28,10 +26,8 @@ public class SqlManager {
     public void disconnectSQL(){
 
         //method to disconnect sqlite server
-
         try {
             conn.close();
-
             System.out.println("Connection to SQLite has been aborted");
         }
         catch (SQLException e)
@@ -51,7 +47,6 @@ public class SqlManager {
 
         try {
                 Statement stmt = conn.createStatement();
-
                 stmt.execute(sql);
             }
             catch(SQLException e)
@@ -98,6 +93,7 @@ public class SqlManager {
             {
                 System.out.println(e.getMessage());
             }
+
         return Result;
 
     }

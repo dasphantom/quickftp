@@ -4,6 +4,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.IOException;
 
 public class FtpManager {
+    //this class provides the ftpmanager object used to manage connections to the ftpserver
     FTPClient ftpClient = new FTPClient();
 
     //method to connect with ftpserver
